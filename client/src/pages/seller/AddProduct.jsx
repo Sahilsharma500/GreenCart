@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { assets, categories } from '../../assets/assets';
+import { useAppContext } from '../../context/AppContext';
+import toast from 'react-hot-toast';
 
 const AddProduct = () => {
     const [files, setFiles] = useState([]);
@@ -9,8 +11,47 @@ const AddProduct = () => {
     const [price, setPrice] = useState('');
     const [offerPrice, setOfferPrice] = useState('');
 
+    const {axios} = useAppContext()
+
     const onSubmitHandler = async(event) => {
-        event.preventDefault()
+        // event.preventDefault()
+        try{
+            event.preventDefault();
+
+            const productData = {
+                name,
+                description: description.split('\n'),
+                category,
+                price,
+                offerPrice
+            }
+
+            const formData = new FormData();
+            formData.append('productData',JSON.stringify(productData));
+            for(let i = 0;i<files.length; i++){
+                formData.append('images', files[i])
+            }
+
+            const {data} = await axios.post('/api/product/add', formData);
+
+            if(data.success){
+                toast.success(data.message);
+                setName('');
+                setDescription('')
+                setCategory('')
+                setPrice('')
+                setOfferPrice('')
+                setFiles([])
+            }
+            else{
+                console.log(data);
+                toast.error(data.message)
+            }
+
+        }
+        catch(error){
+            toast.error(error.message)
+        }
     }
   return (
     <div className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col justify-between bg-white">
@@ -23,7 +64,7 @@ const AddProduct = () => {
                                 <input onChange={(e) => {
                                     const updatedFiles = [...files];
                                     updatedFiles[index] = e.target.files[0];
-                                    setFiles[updatedFiles];
+                                    setFiles(updatedFiles);
                                 }}
                                 type="file" id={`image${index}`} hidden />
                                 <img className='max-w-24 cursor-pointer' src={files[index] ? URL.createObjectURL(files[index]) : assets.upload_area} alt="" width={100} height={100}/>
