@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { dummyOrders } from '../assets/assets'
+import axios from 'axios'
 
 const MyOrders = () => {
     const [myOrders, setMyOrders] = useState([])
-    const {currency} = useAppContext()
+    const {currency, user} = useAppContext()
 
     const fetchMyOrders = async() => {
-        setMyOrders(dummyOrders)
+        // setMyOrders(dummyOrders)
+        try{
+            const {data} = await axios.get('/api/order/user');
+            if(data.success){
+                setMyOrders(data.orders)
+            }
+        }
+        catch(error){
+            console.log(error);
+        }
     }
     useEffect(() => {
-        fetchMyOrders()
-    },[])
+        if(user){
+            fetchMyOrders()
+        }
+    },[user])
   return (
     <div className='mt-16 pb-16'>
     <div className='flex flex-col items-end w-max mb-8'>
