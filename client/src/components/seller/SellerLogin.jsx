@@ -15,7 +15,7 @@ const SellerLogin = () => {
             navigate('/seller')
           }
           else{
-            console.log(data)
+            
             toast.error(data.message);
           }
         }
